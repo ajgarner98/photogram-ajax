@@ -33,11 +33,12 @@ class CommentsController < ApplicationController
       if @comment.save
         format.html { redirect_back fallback_location: root_path, notice: "Comment was successfully created." }
         format.json { render :show, status: :created, location: @comment }
-        format.js 
+        format.js do
+          render template: "comments/create"
+        end
       else
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @comment.errors, status: :unprocessable_entity }
-
       end
     end
   end
@@ -69,19 +70,20 @@ class CommentsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_comment
-      @comment = Comment.find(params[:id])
-    end
 
-    def ensure_current_user_is_owner
-      if current_user != @comment.author
-        redirect_back fallback_location: root_url, alert: "You're not authorized for that."
-      end
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_comment
+    @comment = Comment.find(params[:id])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def comment_params
-      params.require(:comment).permit(:author_id, :photo_id, :body)
+  def ensure_current_user_is_owner
+    if current_user != @comment.author
+      redirect_back fallback_location: root_url, alert: "You're not authorized for that."
     end
+  end
+
+  # Only allow a list of trusted parameters through.
+  def comment_params
+    params.require(:comment).permit(:author_id, :photo_id, :body)
+  end
 end
